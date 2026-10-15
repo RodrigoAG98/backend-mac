@@ -2,10 +2,8 @@ import { IsOptional, IsNumberString } from 'class-validator';
 
 export class FiltroAvanceDto {
   @IsOptional()
-  @IsNumberString()
-  distritoId?: string;
+  distritoId?: string | string[];
 
   @IsOptional()
-  @IsNumberString()
-  tipoEleccionId?: string;
+  tipoEleccionId?: string | string[];
 }

@@ -6,22 +6,29 @@ import { FiltroAvanceDto } from './dto/filtro-avance.dto.js';
 export class AvanceService {
   constructor(private readonly dataSource: DataSource) {}
 
+  private normalizarIds(valor?: string | string[]): number[] {
+    if (!valor) return [];
+    if (Array.isArray(valor)) {
+      return valor.map(v => parseInt(v, 10)).filter(n => !isNaN(n));
+    }
+    return valor.split(',').map(v => parseInt(v, 10)).filter(n => !isNaN(n));
+  }
+
   async obtenerResumenAvance(filtros: FiltroAvanceDto) {
-    const { distritoId, tipoEleccionId } = filtros;
+    const distritosIds = this.normalizarIds(filtros.distritoId);
+    const tiposEleccionIds = this.normalizarIds(filtros.tipoEleccionId);
 
     let whereClause = 'WHERE 1=1';
     const parameters: any[] = [];
 
     // Filtro dinámico por Distrito (si se selecciona)
-    if (distritoId) {
-      whereClause += ` AND d.DistritoId = @${parameters.length}`;
-      parameters.push(parseInt(distritoId, 10));
+    if (distritosIds.length > 0) {
+      whereClause += ` AND d.DistritoId IN (${distritosIds.join(',')})`;
     }
 
     // Filtro dinámico por Tipo de Elección (si se selecciona)
-    if (tipoEleccionId) {
-      whereClause += ` AND a.TipoEleccionId = @${parameters.length}`;
-      parameters.push(parseInt(tipoEleccionId, 10));
+    if (tiposEleccionIds.length > 0) {
+      whereClause += ` AND a.TipoEleccionId IN (${tiposEleccionIds.join(',')})`;
     }
 
     // Consulta para el detalle agrupado por distrito
