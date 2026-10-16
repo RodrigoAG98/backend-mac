@@ -11,6 +11,7 @@ Los pasos para levantar el backend son los siguientes:
 2. Ejecutar respaldo de la BD en DatGrip o TablePlus o algún otro gestor de BD.
 3. Importar o ejecutar SQL(Crea e inserta datos).
 4. (Opcional) en caso de que el front se encuentre en otro puerto tendrás que realizar un ajuste en src/main.ts con la ruta    correcta al front.
+5. Para consultar la documentación del API se puede acceder a la siguiente url: http://localhost:3000/api
 
 ```bash
 #Instalar dependencias
