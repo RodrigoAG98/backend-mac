@@ -54,10 +54,42 @@ export class AvanceService {
 
     const detalleDistritosRaw = await this.dataSource.query(queryDetalle, parameters);
 
+        // 1. Consulta agrupada por Tipo de Elección
+    const queryTipoEleccion = `
+      SELECT 
+        te.TipoEleccionId AS tipoEleccionId,
+        te.Nombre AS tipoEleccion,
+        COUNT(a.ActaId) AS esperadas,
+        SUM(CASE WHEN a.Estado = 'Capturada' THEN 1 ELSE 0 END) AS capturadas,
+        SUM(CASE WHEN a.Estado = 'Pendiente' THEN 1 ELSE 0 END) AS pendientes,
+        CAST(
+          CASE 
+            WHEN COUNT(a.ActaId) = 0 THEN 0
+            ELSE (SUM(CASE WHEN a.Estado = 'Capturada' THEN 1.0 ELSE 0 END) / COUNT(a.ActaId)) * 100 
+          END AS DECIMAL(5,2)
+        ) AS porcentajeAvance
+      FROM dbo.TipoEleccion te
+      LEFT JOIN dbo.Acta a ON te.TipoEleccionId = a.TipoEleccionId
+      ${whereClause.replace(/d\.DistritoId/g, 'a.DistritoId')} 
+      GROUP BY te.TipoEleccionId, te.Nombre
+      ORDER BY te.TipoEleccionId ASC
+    `;
+
+    const detalleTiposEleccionRaw = await this.dataSource.query(queryTipoEleccion);
+
     // Mapear los tipos de datos numéricos del detalle
     const detalleDistritos = detalleDistritosRaw.map((row: any) => ({
       distritoId: Number(row.distritoId),
       distrito: row.distrito,
+      esperadas: Number(row.esperadas || 0),
+      capturadas: Number(row.capturadas || 0),
+      pendientes: Number(row.pendientes || 0),
+      porcentajeAvance: Number(row.porcentajeAvance || 0),
+    }));
+
+    const detalleTiposEleccion = detalleTiposEleccionRaw.map((row: any) => ({
+      tipoEleccionId: Number(row.tipoEleccionId),
+      tipoEleccion: row.tipoEleccion,
       esperadas: Number(row.esperadas || 0),
       capturadas: Number(row.capturadas || 0),
       pendientes: Number(row.pendientes || 0),
@@ -88,6 +120,7 @@ export class AvanceService {
         porcentajeAvance: porcentajeGlobal,
       },
       detalleDistritos,
+      detalleTiposEleccion
     };
   }
 
