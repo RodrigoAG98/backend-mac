@@ -1,7 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiOkResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiOkResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
 import { AvanceService } from './avance.service.js';
 import { FiltroAvanceDto } from './dto/filtro-avance.dto.js';
+import { ResumenAvanceResponseDto } from '../avance/dto/response-avance.dto.js';
+import { DistritoDto } from '../avance/dto/response-distrito.dto.js';
+import { TipoEleccionDto } from '../avance/dto/response-tipo-eleccion.dto.js';
 
 @Controller('avance')
 export class AvanceController {
@@ -14,6 +17,7 @@ export class AvanceController {
   })
   @ApiOkResponse({
     description: 'Resumen y detalle del avance obtenidos exitosamente.',
+    type: ResumenAvanceResponseDto,
   })
   @ApiInternalServerErrorResponse({
     description: 'Error interno en el servidor al consultar los datos.',
@@ -29,6 +33,7 @@ export class AvanceController {
   })
   @ApiOkResponse({
     description: 'Detalle de los distritos obtenidos exitosamente.',
+    type: [DistritoDto]
   })
   @ApiInternalServerErrorResponse({
     description: 'Error interno en el servidor al consultar los datos.',
@@ -44,6 +49,7 @@ export class AvanceController {
   })
   @ApiOkResponse({
     description: 'Detalle de los tipos de elección obtenidos exitosamente.',
+    type: [TipoEleccionDto]
   })
   @ApiInternalServerErrorResponse({
     description: 'Error interno en el servidor al consultar los datos.',
